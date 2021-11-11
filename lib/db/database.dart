@@ -1,11 +1,9 @@
-import 'dart:io';
 import 'package:cov19_stats/model/province.dart';
 import 'package:cov19_stats/model/timeline.dart';
 import 'package:cov19_stats/model/today.dart';
-import 'package:moor/ffi.dart';
 import 'package:moor_flutter/moor_flutter.dart';
-import 'package:path/path.dart' as p;
-import 'package:path_provider/path_provider.dart' as paths;
+
+export 'package:cov19_stats/db/database/shared.dart';
 
 part 'database.g.dart';
 
@@ -39,17 +37,6 @@ class AppDatabase extends _$AppDatabase {
         .watchSingleOrNull();
   }
 
-  void insertToday(TodayEntry entry) => into(today).insertOnConflictUpdate(entry);
-}
-
-AppDatabase openConnection({bool logStatements = false}) {
-  if (Platform.isIOS || Platform.isAndroid) {
-    final executor = LazyDatabase(() async {
-      final dataDir = await paths.getApplicationDocumentsDirectory();
-      final dbFile = File(p.join(dataDir.path, 'db.sqlite'));
-      return VmDatabase(dbFile, logStatements: logStatements);
-    });
-    return AppDatabase(executor);
-  }
-  return AppDatabase(VmDatabase.memory(logStatements: logStatements));
+  void insertToday(TodayEntry entry) =>
+      into(today).insertOnConflictUpdate(entry);
 }
