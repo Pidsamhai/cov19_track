@@ -14,5 +14,9 @@ AppDatabase openConnection({bool logStatements = false}) {
     });
     return AppDatabase(executor);
   }
+  if (Platform.isMacOS || Platform.isLinux) {
+    final file = File('db.sqlite');
+    return AppDatabase(VmDatabase(file, logStatements: logStatements));
+  }
   return AppDatabase(VmDatabase.memory(logStatements: logStatements));
 }
