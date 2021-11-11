@@ -1,9 +1,9 @@
 import 'package:cov19_stats/di/injector.dart';
 import 'package:cov19_stats/ui/page/timeline_page.dart';
-import 'package:cov19_stats/ui/page/today_page.dart';
+import 'package:cov19_stats/ui/page/home_page.dart';
 import 'package:cov19_stats/ui/widget/profile_app_bar.dart';
 import 'package:cov19_stats/view_model/time_line_view_model.dart';
-import 'package:cov19_stats/view_model/today_view_model.dart';
+import 'package:cov19_stats/view_model/home_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -12,7 +12,7 @@ Future<void> main() async {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => getit<TodayViewModel>()),
+        ChangeNotifierProvider(create: (_) => getit<HomeViewModel>()),
         ChangeNotifierProvider(create: (_) => getit<TimelineViewModel>()),
       ],
       child: const MyApp(),
@@ -31,9 +31,7 @@ class _MyAppState extends State<MyApp> {
   int _selected = 0;
   String? subtitle;
 
-  static final List<Widget> pages = [const TodayPage(), const TimelinePage()];
-
-  static final List<String> _pageTitles = ["Today", "Timeline"];
+  static final List<Widget> pages = [const HomePage(), const TimelinePage()];
 
   void selectedPage(int index) {
     setState(() => _selected = index);
@@ -54,10 +52,12 @@ class _MyAppState extends State<MyApp> {
             items: [
               const BottomNavigationBarItem(
                 icon: Icon(Icons.home),
-                label: "Today",
+                label: "Home",
               ),
               const BottomNavigationBarItem(
-                  icon: Icon(Icons.language), label: "Language")
+                icon: Icon(Icons.language),
+                label: "Language",
+              )
             ],
             showUnselectedLabels: false,
             currentIndex: _selected,

@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';
 
 @singleton
-class TodayViewModel with ChangeNotifier, BaseViewModel {
+class HomeViewModel with ChangeNotifier, BaseViewModel {
   DDCRepository repository;
   TodayEntry? _result;
   TodayEntry? get result => _result;
@@ -14,7 +14,7 @@ class TodayViewModel with ChangeNotifier, BaseViewModel {
   Stream<Resource<TodayEntry>?>? _resultStream;
   Stream<Resource<TodayEntry>?>? get resultStream => _resultStream;
 
-  TodayViewModel({required this.repository})
+  HomeViewModel({required this.repository})
       : _resultStream = repository.todayStream();
 
   void refresh() {

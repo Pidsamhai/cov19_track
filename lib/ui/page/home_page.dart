@@ -2,25 +2,25 @@ import 'dart:math';
 
 import 'package:cov19_stats/db/database.dart';
 import 'package:cov19_stats/ui/widget/search_text_field.dart';
-import 'package:cov19_stats/view_model/today_view_model.dart';
+import 'package:cov19_stats/view_model/home_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cov19_stats/utils/extensions.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
-class TodayPage extends StatefulWidget {
-  const TodayPage({Key? key}) : super(key: key);
+class HomePage extends StatefulWidget {
+  const HomePage({Key? key}) : super(key: key);
   @override
-  State<TodayPage> createState() => _TodayPageState();
+  State<HomePage> createState() => _HomePageState();
 }
 
-class _TodayPageState extends State<TodayPage> {
+class _HomePageState extends State<HomePage> {
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
       GlobalKey<RefreshIndicatorState>();
   @override
   void initState() {
     WidgetsBinding.instance?.addPostFrameCallback((_) {
-      if (!Provider.of<TodayViewModel>(context, listen: false).inited) {
+      if (!Provider.of<HomeViewModel>(context, listen: false).inited) {
         _refreshIndicatorKey.currentState?.show();
       }
     });
