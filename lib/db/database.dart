@@ -1,7 +1,7 @@
 import 'package:cov19_stats/model/province.dart';
 import 'package:cov19_stats/model/timeline.dart';
 import 'package:cov19_stats/model/today.dart';
-import 'package:moor_flutter/moor_flutter.dart';
+import 'package:moor/moor.dart';
 
 export 'package:cov19_stats/db/database/shared.dart';
 
@@ -37,6 +37,33 @@ class AppDatabase extends _$AppDatabase {
         .watchSingleOrNull();
   }
 
-  void insertToday(TodayEntry entry) =>
+  Stream<List<TodayEntry>> timelineStream(int limit) {
+    return (select(today)
+          ..limit(limit)
+          ..orderBy([
+            (u) => OrderingTerm(expression: u.txnDate, mode: OrderingMode.desc),
+          ]))
+        .get().asStream();
+  }
+
+    Future<List<TodayEntry>> getTimeline(int limit) {
+    return (select(today)
+          ..limit(limit)
+          ..orderBy([
+            (u) => OrderingTerm(expression: u.txnDate, mode: OrderingMode.desc),
+          ]))
+        .get();
+  }
+
+  Future insertToday(TodayEntry entry) =>
       into(today).insertOnConflictUpdate(entry);
+
+  Future insertTimeline(List<TodayEntry> entries) async {
+    // return transaction(() async {
+
+    // });
+    for (var entry in entries) {
+      await into(today).insertOnConflictUpdate(entry);
+    }
+  }
 }

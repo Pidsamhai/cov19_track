@@ -46,6 +46,8 @@ dependencies:
   dio_logging_interceptor: ^1.0.1
   dio_logger: ^4.0.8+8
   declarative_refresh_indicator: ^0.1.0
+  flutter_bloc: ^7.3.3
+  bloc: ^7.2.1
 
 dev_dependencies:
   flutter_test:

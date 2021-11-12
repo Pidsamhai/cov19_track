@@ -2,18 +2,22 @@ import 'package:cov19_stats/di/injector.dart';
 import 'package:cov19_stats/ui/page/timeline_page.dart';
 import 'package:cov19_stats/ui/page/home_page.dart';
 import 'package:cov19_stats/ui/widget/profile_app_bar.dart';
-import 'package:cov19_stats/view_model/time_line_view_model.dart';
-import 'package:cov19_stats/view_model/home_view_model.dart';
+import 'package:cov19_stats/view_model/home/cubit/cubit/home_cubit.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 Future<void> main() async {
   configureInjection();
   runApp(
-    MultiProvider(
+    MultiBlocProvider(
+      // providers: [
+      //   ChangeNotifierProvider(create: (_) => getit<HomeViewModel>()),
+      //   ChangeNotifierProvider(create: (_) => getit<TimelineViewModel>()),
+      // ],
       providers: [
-        ChangeNotifierProvider(create: (_) => getit<HomeViewModel>()),
-        ChangeNotifierProvider(create: (_) => getit<TimelineViewModel>()),
+        BlocProvider<HomeCubit>(
+          create: (BuildContext context) => getit<HomeCubit>(),
+        ),
       ],
       child: const MyApp(),
     ),
@@ -44,26 +48,27 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        home: Scaffold(
-          appBar: ProfileAppBar(),
-          bottomNavigationBar: BottomNavigationBar(
-            // ignore: prefer_const_literals_to_create_immutables
-            items: [
-              const BottomNavigationBarItem(
-                icon: Icon(Icons.home),
-                label: "Home",
-              ),
-              const BottomNavigationBarItem(
-                icon: Icon(Icons.language),
-                label: "Language",
-              )
-            ],
-            showUnselectedLabels: false,
-            currentIndex: _selected,
-            onTap: selectedPage,
-          ),
-          body: pages[_selected],
-        ));
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        appBar: ProfileAppBar(),
+        bottomNavigationBar: BottomNavigationBar(
+          // ignore: prefer_const_literals_to_create_immutables
+          items: [
+            const BottomNavigationBarItem(
+              icon: Icon(Icons.home),
+              label: "Home",
+            ),
+            const BottomNavigationBarItem(
+              icon: Icon(Icons.language),
+              label: "Language",
+            )
+          ],
+          showUnselectedLabels: false,
+          currentIndex: _selected,
+          onTap: selectedPage,
+        ),
+        body: pages[_selected],
+      ),
+    );
   }
 }

@@ -15,4 +15,8 @@ class Resource<T> {
 
   static Resource<T> failure<T>({required Exception err}) =>
       Resource<T>(data: null, err: err, status: Status.failure);
+
+  bool get isLoading => status == Status.loading;
+  bool get isError => status == Status.failure;
+  bool get isSuccess => status == Status.success;
 }

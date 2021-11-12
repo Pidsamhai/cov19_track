@@ -6,7 +6,7 @@ class NetworkBoundResource<ResultType, RequestType> {
     required Stream<ResultType?> Function() query,
     required bool Function(ResultType? data) shouldFetch,
     required Future<RequestType> Function() fetch,
-    required Function(RequestType item) saveFetchResult,
+    required Future Function(RequestType item) saveFetchResult,
   }) async* {
     var data = query();
 

@@ -16,9 +16,10 @@ class TimelineViewModel with ChangeNotifier, BaseViewModel {
 
   Future fetch() async {
     try {
-      _result = await repository.fetchTimeline();
-      if (!inited) inited = true;
-      notifyListeners();
+      // _result = await repository.fetchTimeline();
+      // if (!inited) inited = true;
+      // notifyListeners();
+      throw Exception("Error");
     } catch (e) {
       return;
     }

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:cov19_stats/db/database.dart';
 import 'package:cov19_stats/db/resource.dart';
 import 'package:cov19_stats/repository/ddc_repository.dart';
@@ -7,28 +8,33 @@ import 'package:injectable/injectable.dart';
 
 @singleton
 class HomeViewModel with ChangeNotifier, BaseViewModel {
-  DDCRepository repository;
+  late DDCRepository _repository;
   TodayEntry? _result;
   TodayEntry? get result => _result;
 
-  Stream<Resource<TodayEntry>?>? _resultStream;
-  Stream<Resource<TodayEntry>?>? get resultStream => _resultStream;
+  final _today = StreamController<Resource<TodayEntry?>>();
+  Stream<Resource<TodayEntry?>> get today => _today.stream;
 
-  HomeViewModel({required this.repository})
-      : _resultStream = repository.todayStream();
+  final _timeLine = StreamController<Resource<List<TodayEntry>>>();
+  Stream<Resource<List<TodayEntry>>> get timeLine => _timeLine.stream;
 
-  void refresh() {
-    _resultStream = repository.todayStream();
-    notifyListeners();
+  HomeViewModel({required DDCRepository repository}) {
+    _repository = repository;
   }
 
-  Future fetch() async {
-    try {
-      _result = await repository.fetchToday();
-      if (!inited) inited = true;
-      notifyListeners();
-    } catch (e) {
-      return;
-    }
+  void refresh(int limit) {
+    _timeLine.sink.addStream(_repository.timelineStream(limit));
+  }
+
+  void init(limit) {
+    if (inited) return;
+    _today.sink.addStream(_repository.todayStream());
+    _timeLine.sink.addStream(_repository.timelineStream(limit));
+    inited = true;
+  }
+
+  void dispose() {
+    _today.close();
+    _timeLine.close();
   }
 }
