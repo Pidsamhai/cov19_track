@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:cov19_stats/db/database.dart';
 import 'package:cov19_stats/db/network_bound_resource.dart';
 import 'package:cov19_stats/db/resource.dart';
@@ -9,7 +8,9 @@ abstract class DDCRepository {
   Future<TodayEntry> fetchToday();
   Stream<Resource<TodayEntry>> todayStream();
   Stream<Resource<List<TodayEntry>>> timelineStream(int limit);
-  Future<List<TodayEntry>> timeline(int limit);
+  Future<List<TodayEntry>> timelineWeekly();
+  Future<List<TodayEntry>> timelineCurrentYear();
+  Future<List<TodayEntry>> timelineCurrentMonth();
 }
 
 @Injectable(as: DDCRepository)
@@ -19,6 +20,28 @@ class DDCRepositoryImpl implements DDCRepository {
   DDCRepositoryImpl(Dio dio, AppDatabase db)
       : _dio = dio,
         _db = db;
+  static const int _10_min = 600000;
+  DateTime? lastFetch;
+
+  bool shouldFetch() {
+    print("Time $lastFetch");
+    if (lastFetch == null) {
+      lastFetch = DateTime.now();
+      return true;
+    } else {
+      var now = DateTime.now();
+      var lastEpoc = lastFetch!.millisecondsSinceEpoch;
+      var nowEpoc = now.millisecondsSinceEpoch;
+      var timeDiff = nowEpoc - lastEpoc;
+      print("TimeDiff $timeDiff");
+      if (timeDiff >= _10_min) {
+        lastFetch = now;
+        return true;
+      } else {
+        return false;
+      }
+    }
+  }
 
   @override
   Future<TodayEntry> fetchToday() async {
@@ -35,7 +58,7 @@ class DDCRepositoryImpl implements DDCRepository {
   Stream<Resource<TodayEntry>> todayStream() {
     return NetworkBoundResource<TodayEntry, TodayEntry>().asStream(
         query: _db.todayStream,
-        shouldFetch: (result) => Random().nextBool() /*result == null*/,
+        shouldFetch: (result) => result == null || shouldFetch(),
         fetch: () async {
           Response<List> res = await _dio.get("/today-cases-all");
           TodayEntry? today =
@@ -49,7 +72,7 @@ class DDCRepositoryImpl implements DDCRepository {
   Stream<Resource<List<TodayEntry>>> timelineStream(int limit) {
     return NetworkBoundResource<List<TodayEntry>, List<TodayEntry>>().asStream(
       query: () => _db.timelineStream(limit),
-      shouldFetch: (result) => true,
+      shouldFetch: (result) => result == null || shouldFetch(),
       fetch: () async {
         Response<List> res = await _dio.get("/timeline-cases-all");
         var entires = res.data?.map((e) {
@@ -62,19 +85,38 @@ class DDCRepositoryImpl implements DDCRepository {
   }
 
   @override
-  Future<List<TodayEntry>> timeline(int limit) async {
-    List<TodayEntry>? timeline;
-    try {
-      timeline = await _db.getTimeline(limit);
-      Response<List> res = await _dio.get("/timeline-cases-all");
-      var entires = res.data?.map((e) {
-        return TodayEntry.fromJson(e);
-      }).toList();
-      await _db.insertTimeline(entires!);
-      return await _db.getTimeline(limit);
-    } catch (e) {
-      if (timeline != null) return timeline;
-      rethrow;
-    }
+  Future<List<TodayEntry>> timelineWeekly() async {
+    return resource<List<TodayEntry>, List<TodayEntry>>(
+        query: () async => _db.getTimelineWeekly(),
+        shouldFetch: (cache) => cache == null || shouldFetch(),
+        fetch: () async {
+          Response<List> res = await _dio.get("/timeline-cases-all");
+          return res.data?.map((e) => TodayEntry.fromJson(e)).toList();
+        },
+        saveFetchResult: (data) => _db.insertTimeline(data));
+  }
+
+  @override
+  Future<List<TodayEntry>> timelineCurrentYear() {
+    return resource<List<TodayEntry>, List<TodayEntry>>(
+        query: () async => _db.getTimelineCurrentYear(),
+        shouldFetch: (cache) => cache == null || shouldFetch(),
+        fetch: () async {
+          Response<List> res = await _dio.get("/timeline-cases-all");
+          return res.data?.map((e) => TodayEntry.fromJson(e)).toList();
+        },
+        saveFetchResult: (data) => _db.insertTimeline(data));
+  }
+
+  @override
+  Future<List<TodayEntry>> timelineCurrentMonth() {
+    return resource<List<TodayEntry>, List<TodayEntry>>(
+        query: () async => _db.getTimelineCurrentMonth(),
+        shouldFetch: (cache) => cache == null || shouldFetch(),
+        fetch: () async {
+          Response<List> res = await _dio.get("/timeline-cases-all");
+          return res.data?.map((e) => TodayEntry.fromJson(e)).toList();
+        },
+        saveFetchResult: (data) => _db.insertTimeline(data));
   }
 }

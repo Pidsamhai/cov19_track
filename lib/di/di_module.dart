@@ -19,7 +19,7 @@ abstract class AppModule {
     dio.options = option;
     dio.interceptors.add(
       CustomInterceptor(
-        level: Level1.body,
+        level: Level1.basic,
         compact: false,
       )
     );

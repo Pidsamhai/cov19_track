@@ -43,12 +43,35 @@ class AppDatabase extends _$AppDatabase {
           ..orderBy([
             (u) => OrderingTerm(expression: u.txnDate, mode: OrderingMode.desc),
           ]))
-        .get().asStream();
+        .get()
+        .asStream();
   }
 
-    Future<List<TodayEntry>> getTimeline(int limit) {
+  Future<List<TodayEntry>> getTimelineWeekly() {
     return (select(today)
-          ..limit(limit)
+          ..limit(7)
+          ..orderBy([
+            (u) => OrderingTerm(expression: u.txnDate, mode: OrderingMode.desc),
+          ]))
+        .get();
+  }
+
+  Future<List<TodayEntry>> getTimelineCurrentYear() {
+    var currentYear = DateTime.now().year;
+    return (select(today)
+          ..where((tbl) => tbl.txnDate.like("$currentYear%"))
+          ..orderBy([
+            (u) => OrderingTerm(expression: u.txnDate, mode: OrderingMode.desc),
+          ]))
+        .get();
+  }
+
+  Future<List<TodayEntry>> getTimelineCurrentMonth() {
+    var currentYear = DateTime.now().year;
+    var currentMonth = DateTime.now().month;
+    return (select(today)
+          ..where((tbl) => tbl.txnDate.like(
+              "${currentYear}_${currentMonth.toString().padLeft(2, '0')}%"))
           ..orderBy([
             (u) => OrderingTerm(expression: u.txnDate, mode: OrderingMode.desc),
           ]))

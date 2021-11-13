@@ -34,3 +34,25 @@ class NetworkBoundResource<ResultType, RequestType> {
     }
   }
 }
+
+Future<ResultType> resource<ResultType, RequestType>({
+  required Future<ResultType?> Function() query,
+  required bool Function(ResultType? cache) shouldFetch,
+  required Future<RequestType?> Function() fetch,
+  required Future Function(RequestType fetchData) saveFetchResult,
+}) async {
+  ResultType? cache;
+  try {
+    cache = await query();
+    if (shouldFetch(cache)) {
+      RequestType? fetchData = await fetch();
+      await saveFetchResult(fetchData!);
+      ResultType? result = await query();
+      return result!;
+    }
+    return cache!;
+  } catch (e) {
+    if (cache != null) return cache;
+    rethrow;
+  }
+}

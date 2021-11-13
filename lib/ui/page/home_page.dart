@@ -1,6 +1,7 @@
 import 'package:cov19_stats/db/database.dart';
 import 'package:cov19_stats/ui/widget/search_text_field.dart';
 import 'package:cov19_stats/ui/widget/selector_button.dart';
+import 'package:cov19_stats/ui/widget/statics_card.dart';
 import 'package:cov19_stats/view_model/home/cubit/cubit/home_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -14,18 +15,18 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  List<SelectorBottonItem<String, int>> filterButtons = [
-    SelectorBottonItem("Week", 7),
-    SelectorBottonItem("Month", 30),
-    SelectorBottonItem("Year", 7),
+  List<SelectorBottonItem<String, TimelineFilter>> filterButtons = [
+    SelectorBottonItem("Week", TimelineFilter.week),
+    SelectorBottonItem("Month", TimelineFilter.month),
+    SelectorBottonItem("Year", TimelineFilter.year),
   ];
 
-  late SelectorBottonItem<String, int> selected;
+  late SelectorBottonItem<String, TimelineFilter> selected;
 
   @override
   void initState() {
     selected = filterButtons[0];
-    BlocProvider.of<HomeCubit>(context).getTimeline(limit: selected.value);
+    BlocProvider.of<HomeCubit>(context).getTimeline(filter: selected.value);
     super.initState();
   }
 
@@ -60,35 +61,22 @@ class _HomePageState extends State<HomePage> {
               ),
               BlocBuilder<HomeCubit, HomeState>(builder: (context, state) {
                 if (state is HomeLoading) {
-                  return loading();
+                  return buildStaticCards(null);
                 } else if (state is HomeLoaded) {
-                  return Row(
-                    children: [
-                      StaticsCard(
-                        newCase: state.timeline.first.newCase ?? 0,
-                        totalCase: state.timeline.first.totalCase ?? 0,
-                      ),
-                      StaticsCard(
-                        newCase: state.timeline.first.newRecovered ?? 0,
-                        totalCase: state.timeline.first.totalCase ?? 0,
-                      ),
-                    ],
-                  );
+                  return buildStaticCards(state.timeline);
                 } else {
-                  return const Center(
-                    child: Text("error"),
-                  );
+                  return buildStaticCards(null);
                 }
               }),
               Padding(
                 padding: const EdgeInsets.only(top: 8, bottom: 8),
-                child: SelectorBottonWidget<String, int>(
+                child: SelectorBottonWidget<String, TimelineFilter>(
                   selected: selected,
                   buttons: filterButtons,
                   onSelected: (s) {
                     setState(() => selected = s);
                     BlocProvider.of<HomeCubit>(context)
-                        .getTimeline(limit: selected.value);
+                        .getTimeline(filter: selected.value);
                   },
                 ),
               ),
@@ -156,48 +144,17 @@ Widget loading() {
   );
 }
 
-class StaticsCard extends StatelessWidget {
-  final int newCase;
-  final int totalCase;
-
-  const StaticsCard({
-    Key? key,
-    required this.newCase,
-    required this.totalCase,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Flexible(
-      child: SizedBox(
-        width: double.maxFinite,
-        height: 120,
-        child: Card(
-          elevation: 0,
-          color: const Color(0xFFEEEEEE),
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  newCase.toCurrency(),
-                  style: context.theme.textTheme.headline4,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 20),
-                Text(
-                  totalCase.toCurrency(),
-                  style: context.theme.textTheme.subtitle1,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ),
-        ),
+Widget buildStaticCards(List<TodayEntry>? timeline) {
+  return Row(
+    children: [
+      StaticsCard(
+        newCase: timeline?.first.newCase,
+        totalCase: timeline?.first.totalCase,
       ),
-    );
-  }
+      StaticsCard(
+        newCase: timeline?.first.newRecovered,
+        totalCase: timeline?.first.totalCase,
+      ),
+    ],
+  );
 }
