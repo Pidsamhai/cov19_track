@@ -2,7 +2,7 @@ import 'package:cov19_stats/db/database.dart';
 import 'package:cov19_stats/ui/widget/search_text_field.dart';
 import 'package:cov19_stats/ui/widget/selector_button.dart';
 import 'package:cov19_stats/ui/widget/statics_card.dart';
-import 'package:cov19_stats/view_model/home/cubit/cubit/home_cubit.dart';
+import 'package:cov19_stats/cubit/home/home_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cov19_stats/utils/extensions.dart';

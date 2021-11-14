@@ -4,7 +4,7 @@ import 'package:cov19_stats/services/ddc_api_client.dart';
 import 'package:cov19_stats/ui/page/timeline_page.dart';
 import 'package:cov19_stats/ui/page/home_page.dart';
 import 'package:cov19_stats/ui/widget/profile_app_bar.dart';
-import 'package:cov19_stats/view_model/home/cubit/cubit/home_cubit.dart';
+import 'package:cov19_stats/cubit/home/home_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
