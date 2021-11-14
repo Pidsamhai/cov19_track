@@ -2,7 +2,6 @@ import 'package:cov19_stats/db/database.dart';
 import 'package:cov19_stats/db/network_bound_resource.dart';
 import 'package:cov19_stats/db/resource.dart';
 import 'package:dio/dio.dart';
-import 'package:injectable/injectable.dart';
 
 abstract class DDCRepository {
   Future<TodayEntry> fetchToday();
@@ -13,13 +12,19 @@ abstract class DDCRepository {
   Future<List<TodayEntry>> timelineCurrentMonth();
 }
 
-@Injectable(as: DDCRepository)
 class DDCRepositoryImpl implements DDCRepository {
+  static DDCRepositoryImpl? _instance;
   final Dio _dio;
   final AppDatabase _db;
-  DDCRepositoryImpl(Dio dio, AppDatabase db)
-      : _dio = dio,
-        _db = db;
+
+  DDCRepositoryImpl._internal(this._dio, this._db) {
+    _instance = this;
+  }
+
+  factory DDCRepositoryImpl(Dio dio, AppDatabase db) {
+    return _instance ??  DDCRepositoryImpl._internal(dio, db);
+  }
+
   static const int _10_min = 600000;
   DateTime? lastFetch;
 

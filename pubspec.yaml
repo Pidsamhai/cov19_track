@@ -37,8 +37,6 @@ dependencies:
   dio: ^4.0.1
   provider: ^6.0.1
   intl: ^0.17.0
-  get_it: ^7.2.0
-  injectable: ^1.5.0
   syncfusion_flutter_charts: ^19.3.48
   path_provider: ^2.0.6
   moor_flutter: ^4.0.0
@@ -59,7 +57,6 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^1.0.0
-  injectable_generator: ^1.5.2
   build_runner: ^2.1.4
   moor_generator: ^4.6.0+1
 

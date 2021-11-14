@@ -1,4 +1,6 @@
-import 'package:cov19_stats/di/injector.dart';
+import 'package:cov19_stats/db/database.dart';
+import 'package:cov19_stats/repository/ddc_repository.dart';
+import 'package:cov19_stats/services/ddc_api_client.dart';
 import 'package:cov19_stats/ui/page/timeline_page.dart';
 import 'package:cov19_stats/ui/page/home_page.dart';
 import 'package:cov19_stats/ui/widget/profile_app_bar.dart';
@@ -7,19 +9,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 Future<void> main() async {
-  configureInjection();
+  final AppDatabase database = openConnection();
+  final DDCApiClient ddcApiClient = DDCApiClient();
+
   runApp(
-    MultiBlocProvider(
-      // providers: [
-      //   ChangeNotifierProvider(create: (_) => getit<HomeViewModel>()),
-      //   ChangeNotifierProvider(create: (_) => getit<TimelineViewModel>()),
-      // ],
-      providers: [
-        BlocProvider<HomeCubit>(
-          create: (BuildContext context) => getit<HomeCubit>(),
-        ),
-      ],
-      child: const MyApp(),
+    RepositoryProvider<DDCRepository>(
+      create: (context) => DDCRepositoryImpl(ddcApiClient.dio, database),
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider<HomeCubit>(
+            create: (BuildContext context) => HomeCubit(context.read<DDCRepository>()),
+          ),
+        ],
+        child: const MyApp(),
+      ),
     ),
   );
 }

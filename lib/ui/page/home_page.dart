@@ -15,6 +15,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  late final HomeCubit _bloc;
   List<SelectorBottonItem<String, TimelineFilter>> filterButtons = [
     SelectorBottonItem("Week", TimelineFilter.week),
     SelectorBottonItem("Month", TimelineFilter.month),
@@ -26,13 +27,14 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     selected = filterButtons[0];
-    BlocProvider.of<HomeCubit>(context).getTimeline(filter: selected.value);
+    _bloc = context.read<HomeCubit>();
+    _bloc.getTimeline(filter: selected.value);
     super.initState();
   }
 
   @override
   void dispose() {
-    BlocProvider.of<HomeCubit>(context).close();
+    _bloc.close();
     super.dispose();
   }
 
@@ -75,14 +77,12 @@ class _HomePageState extends State<HomePage> {
                   buttons: filterButtons,
                   onSelected: (s) {
                     setState(() => selected = s);
-                    BlocProvider.of<HomeCubit>(context)
-                        .getTimeline(filter: selected.value);
+                    _bloc.getTimeline(filter: selected.value);
                   },
                 ),
               ),
               ElevatedButton(
-                onPressed: () =>
-                    BlocProvider.of<HomeCubit>(context).getTimeline(),
+                onPressed: () => _bloc.getTimeline(),
                 child: const Text("Refresh"),
               ),
               BlocBuilder<HomeCubit, HomeState>(builder: (context, state) {

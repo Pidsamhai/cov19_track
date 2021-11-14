@@ -1,2 +1,6 @@
 import 'package:dio/dio.dart';
-import 'package:injectable/injectable.dart';
+
+abstract class ApiClient {
+  final Dio dio;
+  const ApiClient({required this.dio});
+}
