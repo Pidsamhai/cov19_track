@@ -1,15 +1,12 @@
 import 'package:cov19_stats/db/database.dart';
 import 'package:cov19_stats/db/network_bound_resource.dart';
-import 'package:cov19_stats/db/resource.dart';
 import 'package:dio/dio.dart';
 
 abstract class DDCRepository {
   Future<TodayEntry> fetchToday();
-  Stream<Resource<TodayEntry>> todayStream();
-  Stream<Resource<List<TodayEntry>>> timelineStream(int limit);
-  Future<List<TodayEntry>> timelineWeekly();
-  Future<List<TodayEntry>> timelineCurrentYear();
-  Future<List<TodayEntry>> timelineCurrentMonth();
+  Future<List<TodayEntry>> timelineWeekly(bool force);
+  Future<List<TodayEntry>> timelineCurrentYear(bool force);
+  Future<List<TodayEntry>> timelineCurrentMonth(bool force);
 }
 
 class DDCRepositoryImpl implements DDCRepository {
@@ -22,7 +19,7 @@ class DDCRepositoryImpl implements DDCRepository {
   }
 
   factory DDCRepositoryImpl(Dio dio, AppDatabase db) {
-    return _instance ??  DDCRepositoryImpl._internal(dio, db);
+    return _instance ?? DDCRepositoryImpl._internal(dio, db);
   }
 
   static const int _10_min = 600000;
@@ -60,40 +57,10 @@ class DDCRepositoryImpl implements DDCRepository {
   }
 
   @override
-  Stream<Resource<TodayEntry>> todayStream() {
-    return NetworkBoundResource<TodayEntry, TodayEntry>().asStream(
-        query: _db.todayStream,
-        shouldFetch: (result) => result == null || shouldFetch(),
-        fetch: () async {
-          Response<List> res = await _dio.get("/today-cases-all");
-          TodayEntry? today =
-              res.data?.map((e) => TodayEntry.fromJson(e)).first;
-          return today!;
-        },
-        saveFetchResult: (result) async => _db.insertToday(result));
-  }
-
-  @override
-  Stream<Resource<List<TodayEntry>>> timelineStream(int limit) {
-    return NetworkBoundResource<List<TodayEntry>, List<TodayEntry>>().asStream(
-      query: () => _db.timelineStream(limit),
-      shouldFetch: (result) => result == null || shouldFetch(),
-      fetch: () async {
-        Response<List> res = await _dio.get("/timeline-cases-all");
-        var entires = res.data?.map((e) {
-          return TodayEntry.fromJson(e);
-        }).toList();
-        return entires!;
-      },
-      saveFetchResult: (result) async => _db.insertTimeline(result),
-    );
-  }
-
-  @override
-  Future<List<TodayEntry>> timelineWeekly() async {
+  Future<List<TodayEntry>> timelineWeekly(bool forece) async {
     return resource<List<TodayEntry>, List<TodayEntry>>(
         query: () async => _db.getTimelineWeekly(),
-        shouldFetch: (cache) => cache == null || shouldFetch(),
+        shouldFetch: (cache) => cache == null || shouldFetch() || forece,
         fetch: () async {
           Response<List> res = await _dio.get("/timeline-cases-all");
           return res.data?.map((e) => TodayEntry.fromJson(e)).toList();
@@ -102,10 +69,10 @@ class DDCRepositoryImpl implements DDCRepository {
   }
 
   @override
-  Future<List<TodayEntry>> timelineCurrentYear() {
+  Future<List<TodayEntry>> timelineCurrentYear(bool force) {
     return resource<List<TodayEntry>, List<TodayEntry>>(
         query: () async => _db.getTimelineCurrentYear(),
-        shouldFetch: (cache) => cache == null || shouldFetch(),
+        shouldFetch: (cache) => cache == null || shouldFetch() || force,
         fetch: () async {
           Response<List> res = await _dio.get("/timeline-cases-all");
           return res.data?.map((e) => TodayEntry.fromJson(e)).toList();
@@ -114,10 +81,10 @@ class DDCRepositoryImpl implements DDCRepository {
   }
 
   @override
-  Future<List<TodayEntry>> timelineCurrentMonth() {
+  Future<List<TodayEntry>> timelineCurrentMonth(bool force) {
     return resource<List<TodayEntry>, List<TodayEntry>>(
         query: () async => _db.getTimelineCurrentMonth(),
-        shouldFetch: (cache) => cache == null || shouldFetch(),
+        shouldFetch: (cache) => cache == null || shouldFetch() || force,
         fetch: () async {
           Response<List> res = await _dio.get("/timeline-cases-all");
           return res.data?.map((e) => TodayEntry.fromJson(e)).toList();

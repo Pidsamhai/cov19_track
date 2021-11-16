@@ -69,6 +69,39 @@ class AppDatabase extends _$AppDatabase {
   Future<List<TodayEntry>> getTimelineCurrentMonth() {
     var currentYear = DateTime.now().year;
     var currentMonth = DateTime.now().month;
+
+    // SELECT newCase, totalCase, newCaseExcludeabroad, totalCaseExcludeabroad, newDeath, totalDeath, newRecovered, totalRecovered, updateDate,
+    //   strftime('%m', txnDate) as txnDate from today;
+
+    // return customSelect('''
+    //   SELECT
+    //   txn_date,
+    //   new_case,
+    //   total_case,
+    //   new_case_excludeabroad,
+    //   total_case_excludeabroad,
+    //   new_death,
+    //   total_death,
+    //   new_recovered,
+    //   total_recovered,
+    //   update_date FROM today
+    //   GROUP BY txn_date
+    //   ORDER BY txn_date DESC;
+    //   ''', readsFrom: {today})
+    //     .map((p0) => TodayEntry.fromData(p0.data, this))
+    //     .get();
+
+    // return customSelect(
+    //   'SELECT *, (SELECT COUNT(*) FROM todos WHERE category = c.id) AS "amount" FROM categories c;',
+    //   readsFrom: {todos, categories}, // used for the stream: the stream will update when either table changes
+    //   ).watch().map((rows) {
+    //     // we get list of rows here. We just have to turn the raw data from the row into a
+    //     // CategoryWithCount. As we defined the Category table earlier, drift knows how to parse
+    //     // a category. The only thing left to do manually is extracting the amount
+    //     return rows
+    //       .map((row) => CategoryWithCount(Category.fromData(row.data, this), row.readInt('amount')))
+    //       .toList();
+
     return (select(today)
           ..where((tbl) => tbl.txnDate.like(
               "${currentYear}_${currentMonth.toString().padLeft(2, '0')}%"))

@@ -26,7 +26,6 @@ class ProfileAppBar extends AppBar {
                 borderRadius: BorderRadius.circular(8.0),
               ),
               clipBehavior: Clip.antiAlias,
-              color: const Color(0xFFFF0000),
               child: Image.asset("assets/profile_pic.jpg"),
             ),
           ),

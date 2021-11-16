@@ -12,3 +12,10 @@ extension NumberFormating on int {
 extension ContextExtensions on BuildContext {
   ThemeData get theme => Theme.of(this);
 }
+
+extension StringExtensions on String {
+  String dateFormat({String from = "yyyy-MM-dd", required String to}) {
+    var dateTime = DateFormat(from).parse(this);
+    return DateFormat(to).format(dateTime);
+  }
+}
