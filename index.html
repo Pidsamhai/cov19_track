@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <!--
     If you are serving your web app in a path other than the root, change the
@@ -28,13 +29,24 @@
 
   <title>cov19_stats</title>
   <link rel="manifest" href="manifest.json">
+  <style>
+    .loading_container {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+    }
+  </style>
 </head>
+
 <body>
+  <div class="loading_container" id="loading_container" >
+    <h3 style="color: black; font-family: Arial, Helvetica, sans-serif">Loading...</h3>
+  </div>
   <!-- This script installs service_worker.js to provide PWA functionality to
        application. For more information, see:
        https://developers.google.com/web/fundamentals/primers/service-workers -->
   <script>
-    var serviceWorkerVersion = '964309474';
+    var serviceWorkerVersion = '643476462';
     var scriptLoaded = false;
     function loadMainDartJs() {
       if (scriptLoaded) {
@@ -50,6 +62,7 @@
     if ('serviceWorker' in navigator) {
       // Service workers are supported. Use them.
       window.addEventListener('load', function () {
+        // Remove Loading Container
         // Wait for registration to finish before dropping the <script> tag.
         // Otherwise, the browser will load the script multiple times,
         // potentially different versions.
@@ -99,4 +112,5 @@
   </script>
   <script defer src="sql-wasm.js"></script>
 </body>
+
 </html>
