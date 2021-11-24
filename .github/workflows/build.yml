@@ -22,7 +22,7 @@ jobs:
       run: flutter pub get
 
     - name: Build web
-      run: flutter build web --release --base-href /$BASE_HREF/
+      run: flutter build web --release --base-href /$BASE_HREF/ --web-renderer html
       env:
         BASE_HREF: ${{ github.event.repository.name }}
 
